@@ -15,10 +15,23 @@ async function readConfig() {
     }
 }
 
+// Download .ics file.
+async function downloadIcsFile(url) {
+    try {
+        const calendarDate = ical.async.fromURL(url);
+        return calendarDate;
+    } catch (error) {
+        console.error('Error: Cannot download this file:', error);
+    }
+}
+
 async function main() {
 
-    const config = await readConfig(); 
-    console.log(config);
+    const config = await readConfig();
+    const ical_url = config.ical_url;
+    console.log(config?.ical_url);
+    const calendarDate = await downloadIcsFile(ical_url);
+    console.log(Object.keys(calendarDate).length);
 }
 
 main();
