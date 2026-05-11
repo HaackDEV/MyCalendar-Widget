@@ -1,4 +1,5 @@
 node_modules/
 config.json
-hoje.txt
-semana.txt
+Theme.inc
+today/today.inc
+week/week.inc

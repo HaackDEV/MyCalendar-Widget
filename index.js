@@ -36,23 +36,23 @@ function filterTodayEvents(calendarDate) {
         const endToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
 
         const events = Object.values(calendarDate).filter(item => item.type === 'VEVENT');
-        
+
         let filtered = [];
 
         events.forEach(event => {
             // Check if isn't a recurring event.
             if (event.start && !event.rrule) {
-                const eventDate = new Date (event.start);
-                if (eventDate >= startToday && eventDate <= endToday){
-                    filtered.push({...event, actualDate: eventDate});
+                const eventDate = new Date(event.start);
+                if (eventDate >= startToday && eventDate <= endToday) {
+                    filtered.push({ ...event, actualDate: eventDate });
                 }
             }
             // Check if is a recurring event.
-            if (event.rrule){
-                 const occurrences = event.rrule.between(startToday, endToday, true);
-                 if (occurrences.length > 0){
-                    filtered.push({...event, actualDate: occurrences[0]});
-                 }
+            if (event.rrule) {
+                const occurrences = event.rrule.between(startToday, endToday, true);
+                if (occurrences.length > 0) {
+                    filtered.push({ ...event, actualDate: occurrences[0] });
+                }
             }
         });
 
@@ -65,7 +65,7 @@ function filterTodayEvents(calendarDate) {
 }
 
 // Filter events on current week and return an array.
-function filterWeekEvents(calendarDate){
+function filterWeekEvents(calendarDate) {
     try {
         const today = new Date;
 
@@ -82,17 +82,17 @@ function filterWeekEvents(calendarDate){
         events.forEach(event => {
             // Check if isn't a recurring event.
             if (event.start && !event.rrule) {
-                const eventDate = new Date (event.start);
-                if (eventDate >= startWeek && eventDate <= endWeek){
-                    filtered.push({...event, actualDate: eventDate});
+                const eventDate = new Date(event.start);
+                if (eventDate >= startWeek && eventDate <= endWeek) {
+                    filtered.push({ ...event, actualDate: eventDate });
                 }
             }
             // Check if is a recurring event.
-            if (event.rrule){
-                 const occurrences = event.rrule.between(startWeek, endWeek, true);
-                 if (occurrences.length > 0){
-                    filtered.push({...event, actualDate: occurrences[0]});
-                 }
+            if (event.rrule) {
+                const occurrences = event.rrule.between(startWeek, endWeek, true);
+                if (occurrences.length > 0) {
+                    filtered.push({ ...event, actualDate: occurrences[0] });
+                }
             }
         })
 
@@ -115,60 +115,60 @@ function removeDuplicateEvents(eventsArray) {
     eventsArray.forEach(event => {
         const summaryNormal = event.summary.toLowerCase().trim();
 
-        if (!seenEvents.has(summaryNormal)){
+        if (!seenEvents.has(summaryNormal)) {
             seenEvents.add(summaryNormal)
-            uniqueEvents.push(event);   
+            uniqueEvents.push(event);
         }
     });
 
     return uniqueEvents;
 }
 
-// Export filtered events to an .ini file formatted for Rainmeter.
-async function exportToIni(fileName, sectionName, events, showTime = false) {
-        try {
-            let formatedObj = {
-                [sectionName]: {
-                    Count: events.length
-                }
+// Export filtered events to an .inc file formatted for Rainmeter.
+async function exportToInc(fileName, sectionName, events, showTime = false) {
+    try {
+        let formatedObj = {
+            Variables: {
+                Count: events.length
             }
-
-            events.forEach((event, index) => {
-                let tittle = event.summary;
-                let finalText = tittle;
-
-                if (showTime && event.actualDate) {
-                    const eventDate = new Date(event.actualDate);
-                    const hour = String(eventDate.getHours()).padStart(2, '0');
-                    const minutes = String(eventDate.getMinutes()).padStart(2, '0');
-                    finalText = `${hour}:${minutes} - ${tittle}`;
-                };
-            
-                formatedObj[sectionName] [`event${index + 1}`] = finalText;
-            });
-            
-            const iniString = ini.stringify(formatedObj);
-
-            const filePath = path.join(__dirname, fileName);
-            await fs.writeFile(filePath, iniString, 'utf8');
-            console.log(`${fileName} success exported.`)
-
-        } catch (error) {
-            console.error('Error: Cannot export this file', error);
         }
+
+        events.forEach((event, index) => {
+            let tittle = event.summary;
+            let finalText = tittle;
+
+            if (showTime && event.actualDate) {
+                const eventDate = new Date(event.actualDate);
+                const hour = String(eventDate.getHours()).padStart(2, '0');
+                const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+                finalText = `${hour}:${minutes} - ${tittle}`;
+            };
+
+            formatedObj.Variables[`event${index + 1}`] = finalText;
+        });
+
+        const iniString = ini.stringify(formatedObj);
+
+        const filePath = path.join(__dirname, fileName);
+        await fs.writeFile(filePath, iniString, 'utf8');
+        console.log(`${fileName} success exported.`)
+
+    } catch (error) {
+        console.error('Error: Cannot export this file', error);
+    }
 }
 
 async function exportThemeToInc(config) {
     try {
         let incContent = '[Variables]\n';
 
-        for (const [key, value] of Object.entries(config)){
-            if (key != 'ical_url'){
+        for (const [key, value] of Object.entries(config)) {
+            if (key != 'ical_url') {
                 incContent += `${key}=${value}\n`;
             }
         }
 
-        const filePath = path.join(__dirname, 'theme.inc');
+        const filePath = path.join(__dirname, 'Theme.inc');
         await fs.writeFile(filePath, incContent, 'utf8');
         console.log('Theme.inc success exported.');
     } catch (error) {
@@ -189,8 +189,8 @@ async function main() {
     const todayEvents = filterTodayEvents(calendarDate);
     console.log(todayEvents);
 
-    await exportToIni("today/today.ini", "Today", todayEvents, true);
-    await exportToIni("week/week.ini", "Week", weekEvents, false);
+    await exportToInc("today/today.inc", "Today", todayEvents, true);
+    await exportToInc("week/week.inc", "Week", weekEvents, false);
 }
 
 main();
