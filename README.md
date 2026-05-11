@@ -39,7 +39,7 @@ To make the widget show your events, you need to provide your private Google Cal
 }
 ```
 
-7. Save the file and **Refresh** the skin in Rainmeter.
+7. Save the file and **Refresh** the skin. You can also click on the **"FOCUS OF TODAY"** or **"UPCOMING TASKS"** titles to force an update immediately!
 
 ## 🎨 Customization
 
