@@ -1,7 +1,8 @@
 {
   "ical_url": "COLE_SEU_LINK_ICAL_AQUI",
-  "cor_fundo": "18,18,20,120",
-  "cor_texto": "245,245,245,255",
-  "cor_destaque": "200,200,200,255",
-  "tamanho_fonte": 11
+  "background_color": "18,18,20,120",
+  "text_color": "245,245,245,255",
+  "main_color": "200,200,200,255",
+  "font_size": 11,
+  "scale": 1.0
 }
