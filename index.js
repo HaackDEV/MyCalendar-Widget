@@ -3,7 +3,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const ini = require('ini');
 
-const configPath = path.join(__dirname, 'config.json');
+const configPath = path.join(process.cwd(), 'config.json');
 
 // Read the files and convert to a JS object.
 async function readConfig() {
@@ -164,7 +164,7 @@ async function exportToInc(fileName, sectionName, linePrefix, events, showTime =
 
         const iniString = ini.stringify(formatedObj);
 
-        const filePath = path.join(__dirname, fileName);
+        const filePath = path.join(process.cwd(), fileName);
         await fs.writeFile(filePath, iniString, 'utf8');
         console.log(`${fileName} success exported.`)
 
@@ -183,7 +183,7 @@ async function exportThemeToInc(config) {
             }
         }
 
-        const filePath = path.join(__dirname, 'Theme.inc');
+        const filePath = path.join(process.cwd(), 'Theme.inc');
         await fs.writeFile(filePath, incContent, 'utf8');
         console.log('Theme.inc success exported.');
     } catch (error) {
