@@ -1,6 +1,7 @@
 const ical = require('node-ical');
 const fs = require('fs/promises');
 const path = require('path');
+const ini = require('ini');
 
 const configPath = path.join(__dirname, 'config.json');
 
@@ -90,6 +91,40 @@ function filterWeekEvents(calendarDate){
     }
 }
 
+//
+async function exportToIni(fileName, sectionName, events, showTime = false) {
+        try {
+            let formatedObj = {
+                [sectionName]: {
+                    Count: events.length
+                }
+            }
+
+            events.forEach((event, index) => {
+                let tittle = event.summary;
+                let finalText = tittle;
+
+                if (showTime && event.start) {
+                    const eventDate = new Date(event.start);
+                    const hour = String(eventDate.getHours()).padStart(2, '0');
+                    const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+                    finalText = `${hour}:${minutes} - ${tittle}`;
+                };
+            
+                formatedObj[sectionName] [`event${index + 1}`] = finalText;
+            });
+            
+            const iniString = ini.stringify(formatedObj);
+
+            const filePath = path.join(__dirname, fileName);
+            await fs.writeFile(filePath, iniString, 'utf8');
+            console.log(`${fileName} success exported.`)
+
+        } catch (error) {
+            console.error('Error: Cannot export this file', error);
+        }
+}
+
 async function main() {
 
     const config = await readConfig();
@@ -101,6 +136,9 @@ async function main() {
     console.log(weekEvents);
     const todayEvents = filterTodayEvents(calendarDate);
     console.log(todayEvents);
+
+    await exportToIni("today/today.ini", "Today", todayEvents, true);
+    await exportToIni("week/week.ini", "Week", weekEvents, false);
 }
 
 main();
