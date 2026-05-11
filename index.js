@@ -109,7 +109,7 @@ function filterWeekEvents(calendarDate) {
         const sortedEvents = filtered.sort((a, b) => a.actualDate - b.actualDate);
         const newSortedEvents = removeDuplicateEvents(sortedEvents);
 
-        return newSortedEvents.slice(0, 5);
+        return newSortedEvents;
 
     } catch (error) {
         console.error('Error: Cannot find any event', error);
@@ -135,7 +135,7 @@ function removeDuplicateEvents(eventsArray) {
 }
 
 // Export filtered events to an .inc file formatted for Rainmeter.
-async function exportToInc(fileName, sectionName, linePrefix, events, showTime = false) {
+async function exportToInc(fileName, sectionName, linePrefix, events, showTime = false, maxCount = 5) {
     try {
         let formatedObj = {
             Variables: {
@@ -143,7 +143,7 @@ async function exportToInc(fileName, sectionName, linePrefix, events, showTime =
             }
         }
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < maxCount; i++) {
             if (i < events.length) {
                 let event = events[i];
                 let tittle = event.summary;
@@ -205,7 +205,7 @@ async function main() {
     console.log(todayEvents);
 
     await exportToInc("today/today.inc", "Today", "- ", todayEvents, true);
-    await exportToInc("week/week.inc", "Week", "| ", weekEvents, false);
+    await exportToInc("week/week.inc", "Week", "| ", weekEvents, false, 7);
 }
 
 main();
