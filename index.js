@@ -96,12 +96,32 @@ function filterWeekEvents(calendarDate){
             }
         })
 
-        return filtered.sort((a, b) => a.actualDate - b.actualDate);
+        const sortedEvents = filtered.sort((a, b) => a.actualDate - b.actualDate);
+        const newSortedEvents = removeDuplicateEvents(sortedEvents);
+
+        return newSortedEvents.slice(0, 5);
 
     } catch (error) {
         console.error('Error: Cannot find any event', error);
         return [];
     }
+}
+
+// Remove duplicate events based on their title, keeping only the first occurrence.
+function removeDuplicateEvents(eventsArray) {
+    let seenEvents = new Set();
+    let uniqueEvents = [];
+
+    eventsArray.forEach(event => {
+        const summaryNormal = event.summary.toLowerCase().trim();
+
+        if (!seenEvents.has(summaryNormal)){
+            seenEvents.add(summaryNormal)
+            uniqueEvents.push(event);   
+        }
+    });
+
+    return uniqueEvents;
 }
 
 // Export filtered events to an .ini file formatted for Rainmeter.
@@ -118,7 +138,7 @@ async function exportToIni(fileName, sectionName, events, showTime = false) {
                 let finalText = tittle;
 
                 if (showTime && event.actualDate) {
-                    const eventDate = new Date(event.start);
+                    const eventDate = new Date(event.actualDate);
                     const hour = String(eventDate.getHours()).padStart(2, '0');
                     const minutes = String(eventDate.getMinutes()).padStart(2, '0');
                     finalText = `${hour}:${minutes} - ${tittle}`;
