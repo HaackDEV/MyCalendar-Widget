@@ -36,21 +36,28 @@ function filterTodayEvents(calendarDate) {
         const endToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
 
         const events = Object.values(calendarDate).filter(item => item.type === 'VEVENT');
+        
+        let filtered = [];
 
-        return events.filter(event => {
+        events.forEach(event => {
             // Check if isn't a recurring event.
             if (event.start && !event.rrule) {
                 const eventDate = new Date (event.start);
-                return eventDate >= startToday && eventDate <= endToday;
+                if (eventDate >= startToday && eventDate <= endToday){
+                    filtered.push({...event, actualDate: eventDate});
+                }
             }
             // Check if is a recurring event.
             if (event.rrule){
                  const occurrences = event.rrule.between(startToday, endToday, true);
-                 return occurrences.length > 0;
+                 if (occurrences.length > 0){
+                    filtered.push({...event, actualDate: occurrences[0]});
+                 }
             }
+        });
 
-            return false;
-    })
+        return filtered.sort((a, b) => a.actualDate - b.actualDate);
+
     } catch (error) {
         console.error('Error: Cannot find any event', error);
         return [];
@@ -70,28 +77,34 @@ function filterWeekEvents(calendarDate){
 
         const events = Object.values(calendarDate).filter(item => item.type === 'VEVENT');
 
-        return events.filter(event => {
+        let filtered = [];
+
+        events.forEach(event => {
             // Check if isn't a recurring event.
             if (event.start && !event.rrule) {
                 const eventDate = new Date (event.start);
-                return eventDate >= startWeek && eventDate <= endWeek;
+                if (eventDate >= startWeek && eventDate <= endWeek){
+                    filtered.push({...event, actualDate: eventDate});
+                }
             }
-            
-            // Check if it's a recurring event.
+            // Check if is a recurring event.
             if (event.rrule){
                  const occurrences = event.rrule.between(startWeek, endWeek, true);
-                 return occurrences.length > 0;
+                 if (occurrences.length > 0){
+                    filtered.push({...event, actualDate: occurrences[0]});
+                 }
             }
-
-            return false;
         })
+
+        return filtered.sort((a, b) => a.actualDate - b.actualDate);
+
     } catch (error) {
         console.error('Error: Cannot find any event', error);
         return [];
     }
 }
 
-//
+// Export filtered events to an .ini file formatted for Rainmeter.
 async function exportToIni(fileName, sectionName, events, showTime = false) {
         try {
             let formatedObj = {
@@ -104,7 +117,7 @@ async function exportToIni(fileName, sectionName, events, showTime = false) {
                 let tittle = event.summary;
                 let finalText = tittle;
 
-                if (showTime && event.start) {
+                if (showTime && event.actualDate) {
                     const eventDate = new Date(event.start);
                     const hour = String(eventDate.getHours()).padStart(2, '0');
                     const minutes = String(eventDate.getMinutes()).padStart(2, '0');
