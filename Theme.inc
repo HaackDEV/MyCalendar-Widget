@@ -1,0 +1,6 @@
+[Variables]
+background_color=18,18,20,120
+text_color=245,245,245,255
+main_color=200,200,200,255
+font_size=11
+scale=1
