@@ -40,10 +40,16 @@ function filterTodayEvents(calendarDate) {
         let filtered = [];
 
         events.forEach(event => {
+            let duration = 0;
+            if (event.start && event.end) {
+                duration = new Date(event.end) - new Date(event.start);
+            }
+            
             // Check if isn't a recurring event.
             if (event.start && !event.rrule) {
                 const eventDate = new Date(event.start);
-                if (eventDate >= startToday && eventDate <= endToday) {
+                const eventEnd = new Date(eventDate.getTime() + duration);
+                if (eventDate >= startToday && eventDate <= endToday && eventEnd >= today) {
                     filtered.push({ ...event, actualDate: eventDate });
                 }
             }
@@ -51,7 +57,11 @@ function filterTodayEvents(calendarDate) {
             if (event.rrule) {
                 const occurrences = event.rrule.between(startToday, endToday, true);
                 if (occurrences.length > 0) {
-                    filtered.push({ ...event, actualDate: occurrences[0] });
+                    const eventDate = occurrences[0];
+                    const eventEnd = new Date(eventDate.getTime() + duration);
+                    if (eventEnd >= today) {
+                        filtered.push({ ...event, actualDate: eventDate });
+                    }
                 }
             }
         });
@@ -125,27 +135,32 @@ function removeDuplicateEvents(eventsArray) {
 }
 
 // Export filtered events to an .inc file formatted for Rainmeter.
-async function exportToInc(fileName, sectionName, events, showTime = false) {
+async function exportToInc(fileName, sectionName, linePrefix, events, showTime = false) {
     try {
         let formatedObj = {
             Variables: {
-                Count: events.length
+                [`${sectionName}Count`]: events.length
             }
         }
 
-        events.forEach((event, index) => {
-            let tittle = event.summary;
-            let finalText = tittle;
+        for (let i = 0; i < 5; i++) {
+            if (i < events.length) {
+                let event = events[i];
+                let tittle = event.summary;
+                let finalText = tittle;
 
-            if (showTime && event.actualDate) {
-                const eventDate = new Date(event.actualDate);
-                const hour = String(eventDate.getHours()).padStart(2, '0');
-                const minutes = String(eventDate.getMinutes()).padStart(2, '0');
-                finalText = `${hour}:${minutes} - ${tittle}`;
-            };
+                if (showTime && event.actualDate) {
+                    const eventDate = new Date(event.actualDate);
+                    const hour = String(eventDate.getHours()).padStart(2, '0');
+                    const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+                    finalText = `${hour}:${minutes} - ${tittle}`;
+                };
 
-            formatedObj.Variables[`event${index + 1}`] = finalText;
-        });
+                formatedObj.Variables[`${sectionName}Event${i + 1}`] = `${linePrefix}${finalText}`;
+            } else {
+                formatedObj.Variables[`${sectionName}Event${i + 1}`] = "";
+            }
+        }
 
         const iniString = ini.stringify(formatedObj);
 
@@ -189,8 +204,8 @@ async function main() {
     const todayEvents = filterTodayEvents(calendarDate);
     console.log(todayEvents);
 
-    await exportToInc("today/today.inc", "Today", todayEvents, true);
-    await exportToInc("week/week.inc", "Week", weekEvents, false);
+    await exportToInc("today/today.inc", "Today", "- ", todayEvents, true);
+    await exportToInc("week/week.inc", "Week", "| ", weekEvents, false);
 }
 
 main();
