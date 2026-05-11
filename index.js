@@ -158,9 +158,28 @@ async function exportToIni(fileName, sectionName, events, showTime = false) {
         }
 }
 
+async function exportThemeToInc(config) {
+    try {
+        let incContent = '[Variables]\n';
+
+        for (const [key, value] of Object.entries(config)){
+            if (key != 'ical_url'){
+                incContent += `${key}=${value}\n`;
+            }
+        }
+
+        const filePath = path.join(__dirname, 'theme.inc');
+        await fs.writeFile(filePath, incContent, 'utf8');
+        console.log('Theme.inc success exported.');
+    } catch (error) {
+        console.error('Error: Cannot export Theme.inc', error);
+    }
+}
+
 async function main() {
 
     const config = await readConfig();
+    exportThemeToInc(config);
     const ical_url = config.ical_url;
     console.log(config?.ical_url);
     const calendarDate = await downloadIcsFile(ical_url);
