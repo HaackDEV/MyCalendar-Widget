@@ -44,7 +44,7 @@ function filterTodayEvents(calendarDate) {
             if (event.start && event.end) {
                 duration = new Date(event.end) - new Date(event.start);
             }
-            
+
             // Check if isn't a recurring event.
             if (event.start && !event.rrule) {
                 const eventDate = new Date(event.start);
@@ -194,7 +194,7 @@ async function exportThemeToInc(config) {
 async function main() {
 
     const config = await readConfig();
-    exportThemeToInc(config);
+    await exportThemeToInc(config);
     const ical_url = config.ical_url;
     console.log(config?.ical_url);
     const calendarDate = await downloadIcsFile(ical_url);
