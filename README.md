@@ -14,7 +14,7 @@ A beautiful, premium, and dynamic Google Calendar widget for **Rainmeter**. Keep
 ## 📥 Installation
 
 1. Make sure you have [Rainmeter](https://www.rainmeter.net/) installed.
-2. Download the `MyWidgetCalendar.rmskin` file from the [Releases](#) section.
+2. Download the `MyWidgetCalendar.rmskin` file from the [Releases](https://github.com/HaackDEV/MyCalendar-Widget/releases) section.
 3. Double-click the file to install it.
 
 ## ⚙️ Configuration
@@ -47,6 +47,17 @@ You can edit `config.json` to change:
 - `scale`: Zoom factor (e.g., `1.2` for 20% larger, `0.8` for 20% smaller).
 - `background_color`: RGBA color for the background.
 - `text_color`: RGBA color for the texts.
+
+## ❓ How it works
+
+The widget runs a bundled Node.js executable in the background that:
+
+1. Fetches your Google Calendar events via the iCal feed URL
+2. Parses and filters events for today and the upcoming week
+3. Writes the processed data into `.ini` files
+4. Rainmeter reads those files and renders the widget on your desktop
+
+Updates happen automatically every 10 minutes, or manually by clicking the widget titles.
 
 ---
 
